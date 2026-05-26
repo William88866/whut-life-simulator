@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>武理机设人生模拟器 | 余家头岁月</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0052CC',
+                        secondary: '#FF6B00',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        info: '#3B82F6',
+                        danger: '#EF4444'
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body { height: 100%; scroll-behavior: smooth; }
+        @layer utilities {
+            .glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(14px); }
+            .card-shadow { box-shadow: 0 12px 28px -8px rgba(0,82,204,0.12), 0 4px 12px rgba(0,0,0,0.02); }
+            .hover-scale { transition: transform 0.2s ease; }
+            .hover-scale:hover { transform: scale(1.02); }
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0052CC; border-radius: 10px; }
+        
+        /* 校友头像样式 - 和你截图完全一致 */
+        .alumni-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .alumni-avatar i {
+            font-size: 64px;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-orange-50 font-sans antialiased">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-blue-100/70 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold">武</div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">武理机设人生模拟器</h1>
+                </div>
+                <button id="restart-btn" class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-all text-sm font-medium flex items-center gap-1">
+                    <i class="fa fa-refresh"></i> 重新开始
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-20 pb-24 px-4 max-w-4xl mx-auto">
+        <!-- 开始页 -->
+        <div id="start-screen" class="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
+            <div class="text-center mb-10">
+                <div class="w-28 h-28 mx-auto mb-6 drop-shadow-lg rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-5xl font-bold animate-pulse">武</div>
+                <h2 class="text-4xl font-extrabold text-primary mb-2 tracking-tight">武汉理工大学</h2>
+                <h3 class="text-2xl font-semibold text-slate-700 mb-3">交通与物流工程学院</h3>
+                <h4 class="text-xl text-secondary font-medium mb-6">机械设计制造及其自动化</h4>
+                
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-5 mb-8 max-w-2xl mx-auto border border-blue-100 shadow-md">
+                    <p class="text-slate-800 font-bold mb-2 flex items-center justify-center gap-2"><i class="fa fa-anchor text-primary"></i> 厚德博学 · 追求卓越</p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        航海楼的钟声、水运湖的垂柳、梧桐大道的落叶…… 余家头校区将是你未来四年挥洒青春的地方。
+                    </p>
+                </div>
+                <p class="text-slate-600 max-w-xl mx-auto leading-relaxed">
+                    每一个选择，都将塑造独一无二的未来。科研大神、技术专家、人民公仆…… 你的武理故事，由你书写。
+                </p>
+            </div>
+            
+            <div class="w-full max-w-md glass rounded-2xl p-8 card-shadow border border-white/40">
+                <div class="flex justify-center mb-3">
+                    <i class="fa fa-graduation-cap text-3xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-6 text-center">开启你的余家头之旅</h3>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">你的名字</label>
+                    <input type="text" id="student-name" placeholder="例如：余华、李致远" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/60 focus:border-primary transition">
+                </div>
+                <button id="start-btn" class="w-full py-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2">
+                    <i class="fa fa-send"></i> 驶入水运湖畔
+                </button>
+            </div>
+        </div>
+
+        <!-- 游戏主界面 -->
+        <div id="game-screen" class="hidden">
+            <div class="mb-6 bg-white/40 backdrop-blur-sm rounded-xl p-3">
+                <div class="flex justify-between text-sm font-medium text-slate-600 mb-1">
+                    <span>🎓 成长轨迹</span>
+                    <span id="year-display" class="text-primary font-bold">大一 · 上学期</span>
+                </div>
+                <div class="w-full bg-slate-200/80 rounded-full h-2.5 overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-primary to-secondary h-2.5 rounded-full transition-all duration-500 ease-out" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 md:p-8 card-shadow mb-7 border border-white/30">
+                <div id="event-content" class="text-center">
+                    <h3 id="event-title" class="text-2xl md:text-3xl font-bold text-slate-800 mb-4">大一开学</h3>
+                    <p id="event-description" class="text-slate-600 mb-8 text-base md:text-lg leading-relaxed">
+                        你拖着行李箱走进余家头校区，成为交通与物流工程学院机械设计制造及其自动化专业的一名新生。<br><br>
+                        航海楼前的广场上，水运湖波光粼粼，你心中充满憧憬。四年时光即将展开……
+                    </p>
+                </div>
+                <div id="choices" class="space-y-3"></div>
+            </div>
+
+            <!-- 数值面板 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="glass rounded-xl p-3 text-center card-shadow bg-white/80">
+                    <div class="text-2xl font-black text-info mb-0.5" id="gpa">3.0</div>
+                    <div class="text-xs text-slate-500 flex items-center justify-center gap-1"><i class="fa fa-star-o text-[10px]"></i> 平均绩点</div>
+                </div>
+                <div class="glass rounded-xl p-3 text-center card-shadow bg-white/80">
+                    <div class="text-2xl font-black text-success mb-0.5" id="skills">0</div>
+                    <div class="text-xs text-slate-500"><i class="fa fa-wrench"></i> 专业技能</div>
+                </div>
+                <div class="glass rounded-xl p-3 text-center card-shadow bg-white/80">
+                    <div class="text-2xl font-black text-warning mb-0.5" id="competitions">0</div>
+                    <div class="text-xs text-slate-500"><i class="fa fa-trophy"></i> 竞赛奖项</div>
+                </div>
+                <div class="glass rounded-xl p-3 text-center card-shadow bg-white/80">
+                    <div class="text-2xl font-black text-secondary mb-0.5" id="happiness">50</div>
+                    <div class="text-xs text-slate-500"><i class="fa fa-smile-o"></i> 快乐指数</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结局页 - 校友头像和你截图完全一致 -->
+        <div id="end-screen" class="hidden min-h-[calc(100vh-6rem)] flex flex-col items-center justify-center py-6">
+            <div class="text-center mb-6">
+                <div id="result-icon" class="w-24 h-24 mx-auto mb-5 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center shadow-xl">
+                    <i class="fa fa-trophy text-white text-4xl"></i>
+                </div>
+                <h2 id="result-title" class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-2">本科就业</h2>
+                <p id="result-subtitle" class="text-xl text-primary font-medium">成为一名优秀的机械工程师</p>
+            </div>
+            
+            <div class="w-full max-w-2xl glass rounded-2xl p-6 md:p-8 card-shadow mb-8 border border-white/50">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center justify-center gap-2 mb-4"><i class="fa fa-star text-yellow-500"></i> 校友榜样 · 光耀时代 <i class="fa fa-star text-yellow-500"></i></h3>
+                    <div class="bg-gradient-to-br from-blue-50/80 to-white rounded-2xl p-5 shadow-inner">
+                        <div class="flex flex-col items-center">
+                            <!-- 校友头像 - 纯CSS实现，和你截图一模一样 -->
+                            <div id="alumni-avatar" class="w-32 h-32 md:w-36 md:h-36 alumni-avatar bg-orange-500">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <h4 id="alumni-name" class="text-xl font-bold text-primary mt-4 text-center">张国良</h4>
+                            <p id="alumni-title" class="text-sm text-slate-500 mb-3 text-center">中复神鹰碳纤维股份有限公司董事长</p>
+                            <p id="alumni-story" class="text-slate-700 leading-relaxed text-center text-sm md:text-base">
+                                武汉理工大学77级机械专业校友，国家"万人计划"科技创业领军人才。他带领团队成功实现碳纤维国产化，彻底打破了发达国家的技术垄断，荣获国家科学技术进步奖一等奖。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <h3 id="congratulations" class="text-xl font-bold text-slate-800 mb-4">恭喜你完成大学四年旅程</h3>
+                    <p id="encouragement" class="text-slate-600 leading-relaxed text-left"></p>
+                </div>
+            </div>
+            
+            <button id="play-again-btn" class="px-8 py-3 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-xl hover:shadow-xl transform hover:scale-[1.02] transition-all shadow-lg">
+                体验另一种人生
+            </button>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="fixed bottom-0 left-0 right-0 py-3 text-center text-slate-500 text-sm bg-white/90 backdrop-blur border-t border-slate-100">
+        © 2026 交通与物流工程学院 | 厚德博学，追求卓越
+    </footer>
+
+    <script>
+        const gameData={
+            student:{name:'',year:0,gpa:3.0,skills:0,competitions:0,happiness:50},
+            events:[
+                {
+                    title:"大一开学",
+                    description:"你拖着行李箱走进了武汉理工大学余家头校区的校门，成为了交通与物流工程学院机械设计制造及其自动化专业的一名新生。\n\n站在航海楼前的广场上，你望着远处波光粼粼的水运湖，心中充满了对未来的憧憬。\n\n四年的大学生活即将开始，你打算如何度过？",
+                    choices:[
+                        {text:"努力学习，争取保研",effects:{gpa:0.3,happiness:-5}},
+                        {text:"加入实验室，锻炼动手能力",effects:{skills:5,happiness:5}},
+                        {text:"参加社团活动，丰富大学生活",effects:{happiness:15,gpa:-0.1}},
+                        {text:"先放松一下，以后再说",effects:{happiness:10,gpa:-0.2}}
+                    ]
+                },
+                {
+                    title:"大一上学期结束",
+                    description:"第一个学期很快就过去了。你适应了余家头校区的生活节奏，认识了很多新朋友。\n\n高等数学和工程制图让你感受到了工科的魅力，也让你明白了大学学习需要更多的自主和自律。",
+                    choices:[
+                        {text:"寒假好好学习，预习下学期课程",effects:{gpa:0.2,happiness:-5}},
+                        {text:"学习SolidWorks等设计软件",effects:{skills:8,happiness:3}},
+                        {text:"回家好好休息，陪陪家人",effects:{happiness:10}}
+                    ]
+                },
+                {
+                    title:"大一下学期",
+                    description:"新学期开始了，课程变得更加繁重。理论力学、材料力学、机械原理...一门门硬核课程向你袭来。\n\n同时，各种学科竞赛也开始报名了，这是提升自己的好机会。",
+                    choices:[
+                        {text:"报名参加全国大学生机械创新设计大赛",effects:{competitions:1,skills:10,happiness:-5,gpa:-0.1}},
+                        {text:"专注于专业课学习，提高绩点",effects:{gpa:0.3,happiness:2}},
+                        {text:"加入机器人实验室，学习嵌入式开发",effects:{skills:12,happiness:8}}
+                    ]
+                },
+                {
+                    title:"大一结束",
+                    description:"大一就这样匆匆而过。你已经不再是那个懵懂的新生，对机械专业有了更深入的了解。\n\n站在大一和大二的十字路口，你需要为未来做出更明确的规划。",
+                    choices:[
+                        {text:"确定保研目标，开始全面冲刺",effects:{gpa:0.4,competitions:1,happiness:-8}},
+                        {text:"走技术路线，成为一名技术大神",effects:{skills:15,happiness:10}},
+                        {text:"享受大学生活，顺其自然",effects:{happiness:15,gpa:-0.1}}
+                    ]
+                },
+                {
+                    title:"大二学年",
+                    description:"大二是专业课最集中的一年。机械设计、机械制造技术基础、控制工程基础...这些课程将为你打下坚实的专业基础。\n\n同时，你也开始思考毕业后的去向：保研、考研、就业还是考公？",
+                    choices:[
+                        {text:"保持高绩点，争取保研资格",effects:{gpa:0.3,competitions:1,happiness:-5}},
+                        {text:"多做项目，积累实践经验",effects:{skills:12,competitions:1,happiness:5}},
+                        {text:"开始了解考研信息，提前准备",effects:{gpa:0.1,happiness:-3}},
+                        {text:"关注公务员考试，了解体制内工作",effects:{happiness:2}}
+                    ]
+                },
+                {
+                    title:"大三上学期",
+                    description:"不知不觉已经到了大三。身边的同学都开始为自己的未来忙碌起来。\n\n保研的同学在刷绩点、发论文；考研的同学已经开始了第一轮复习；找工作的同学在实习和做项目。\n\n你也到了必须做出选择的时候了。",
+                    choices:[
+                        {text:"全力冲刺保研",effects:{gpa:0.5,competitions:2,happiness:-10},path:"baoyan"},
+                        {text:"提升技能，准备本科就业",effects:{skills:20,happiness:5},path:"jiuye"},
+                        {text:"加入考研大军",effects:{happiness:-8,gpa:0.1},path:"kaoyan"},
+                        {text:"准备公务员考试",effects:{happiness:-5},path:"kaogong"}
+                    ]
+                }
+            ],
+            endings:{
+                baoyan:{
+                    title:"成功保研",
+                    subtitle:"成为一名优秀的科研工作者",
+                    icon:"fa-flask",
+                    color:"from-info to-primary",
+                    avatarBg:"bg-blue-600",
+                    alumni:{
+                        name:"陈学东",
+                        title:"中国工程院院士、华中科技大学教授",
+                        story:"武汉理工大学80级校友，机械系统动力学领域的领军人物。他攻克了光刻机减振器等多项'卡脖子'技术，为我国高端装备制造产业发展作出了重要贡献。"
+                    },
+                    congratulations:"恭喜你{name}，成功保研至华中科技大学机械工程专业！",
+                    encouragement:"亲爱的{name}，恭喜你凭借四年的不懈努力，成功获得了保研资格！这是对你大学四年勤奋学习、刻苦钻研的最好回报。\n\n希望你能像陈学东院士一样，在科研道路上勇攀高峰，用智慧和汗水攻克技术难题。愿你在研究生阶段继续保持武理人'厚德博学，追求卓越'的精神，敢于创新，勇于探索。"
+                },
+                jiuye:{
+                    title:"本科就业",
+                    subtitle:"成为一名优秀的机械工程师",
+                    icon:"fa-cogs",
+                    color:"from-primary to-secondary",
+                    avatarBg:"bg-orange-500",
+                    alumni:{
+                        name:"张国良",
+                        title:"中复神鹰碳纤维股份有限公司董事长",
+                        story:"武汉理工大学77级机械专业校友，国家'万人计划'科技创业领军人才。他带领团队成功实现碳纤维国产化，彻底打破了发达国家的技术垄断，荣获国家科学技术进步奖一等奖。"
+                    },
+                    congratulations:"恭喜你{name}，顺利入职成为机械工程师！",
+                    encouragement:"亲爱的{name}，恭喜你顺利毕业并开启职场生涯！愿你深耕机械领域，脚踏实地精进技术，以武理精神砥砺前行，创造属于自己的事业成就。"
+                },
+                kaoyan:{
+                    title:"考研上岸",
+                    subtitle:"继续深造，追求更高学术目标",
+                    icon:"fa-book",
+                    color:"from-success to-info",
+                    avatarBg:"bg-emerald-600",
+                    alumni:{
+                        name:"吴高潮",
+                        title:"厦门钨业股份有限公司党委副书记、总裁",
+                        story:"武汉理工大学本硕博全程培养的优秀校友。从技术员一步步成长为企业管理者，在新能源行业收获亮眼成绩。"
+                    },
+                    congratulations:"恭喜你{name}，考研成功顺利被录取！",
+                    encouragement:"亲爱的{name}，熬过备考岁月终得圆满。未来继续沉淀学识，兼顾理论与实践，朝着理想稳步前行，前程似锦。"
+                },
+                kaogong:{
+                    title:"成功考公",
+                    subtitle:"进入体制，服务家国人民",
+                    icon:"fa-building",
+                    color:"from-warning to-danger",
+                    avatarBg:"bg-red-500",
+                    alumni:{
+                        name:"王永康",
+                        title:"地方政务领导干部",
+                        story:"原武汉工业大学机械专业毕业生，扎根政务岗位，尽心服务地方发展，践行初心使命。"
+                    },
+                    congratulations:"恭喜你{name}，成功考取公职岗位！",
+                    encouragement:"亲爱的{name}，凭借自身能力站稳岗位。恪守本心认真履职，担当责任服务群众，不负大学四年所学与青春韶华。"
+                }
+            }
+        };
+
+        // 页面元素
+        const startScreen=document.getElementById('start-screen');
+        const gameScreen=document.getElementById('game-screen');
+        const endScreen=document.getElementById('end-screen');
+        const startBtn=document.getElementById('start-btn');
+        const restartBtn=document.getElementById('restart-btn');
+        const playAgainBtn=document.getElementById('play-again-btn');
+        const studentNameInput=document.getElementById('student-name');
+
+        const yearDisplay=document.getElementById('year-display');
+        const progressBar=document.getElementById('progress-bar');
+        const eventTitle=document.getElementById('event-title');
+        const eventDescription=document.getElementById('event-description');
+        const choicesContainer=document.getElementById('choices');
+
+        const gpaDisplay=document.getElementById('gpa');
+        const skillsDisplay=document.getElementById('skills');
+        const competitionsDisplay=document.getElementById('competitions');
+        const happinessDisplay=document.getElementById('happiness');
+
+        const resultIcon=document.getElementById('result-icon');
+        const resultTitle=document.getElementById('result-title');
+        const resultSubtitle=document.getElementById('result-subtitle');
+        const alumniAvatar=document.getElementById('alumni-avatar');
+        const alumniName=document.getElementById('alumni-name');
+        const alumniTitle=document.getElementById('alumni-title');
+        const alumniStory=document.getElementById('alumni-story');
+        const congratulations=document.getElementById('congratulations');
+        const encouragement=document.getElementById('encouragement');
+
+        const semesters=[
+            "大一 · 上学期","大一 · 下学期",
+            "大二 · 上学期","大二 · 下学期",
+            "大三 · 上学期","大三 · 下学期",
+            "大四 · 上学期","大四 · 下学期"
+        ];
+
+        let currentEventIndex=0;
+        let chosenPath=null;
+
+        // 开始游戏
+        startBtn.addEventListener('click',()=>{
+            const name=studentNameInput.value.trim()||'同学';
+            gameData.student.name=name;
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            renderEvent();
+        });
+
+        // 重新开始
+        restartBtn.addEventListener('click',resetGame);
+        playAgainBtn.addEventListener('click',resetGame);
+
+        function resetGame(){
+            gameData.student={name:'',year:0,gpa:3.0,skills:0,competitions:0,happiness:50};
+            currentEventIndex=0;
+            chosenPath=null;
+            studentNameInput.value='';
+            gameScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // 渲染事件
+        function renderEvent(){
+            const event=gameData.events[currentEventIndex];
+            yearDisplay.textContent=semesters[gameData.student.year];
+            progressBar.style.width=`${(gameData.student.year/8)*100}%`;
+            eventTitle.textContent=event.title;
+            eventDescription.innerHTML=event.description.replace(/\n/g,'<br>');
+            choicesContainer.innerHTML='';
+            
+            event.choices.forEach(choice=>{
+                const btn=document.createElement('button');
+                btn.className='w-full py-3 px-4 bg-slate-100 hover:bg-primary hover:text-white rounded-lg transition-colors text-left font-medium';
+                btn.textContent=choice.text;
+                btn.onclick=()=>makeChoice(choice);
+                choicesContainer.appendChild(btn);
+            });
+            
+            updateStats();
+        }
+
+        // 做出选择
+        function makeChoice(choice){
+            // 应用效果
+            if(choice.effects.gpa) gameData.student.gpa=Math.min(4.0,Math.max(2.0,gameData.student.gpa+choice.effects.gpa));
+            if(choice.effects.skills) gameData.student.skills+=choice.effects.skills;
+            if(choice.effects.competitions) gameData.student.competitions+=choice.effects.competitions;
+            if(choice.effects.happiness) gameData.student.happiness=Math.min(100,Math.max(0,gameData.student.happiness+choice.effects.happiness));
+            
+            // 如果选择了明确的路径，直接进入结局
+            if(choice.path){
+                chosenPath=choice.path;
+                showEnding();
+                return;
+            }
+            
+            // 进入下一个事件
+            currentEventIndex++;
+            gameData.student.year++;
+            
+            // 如果所有事件都完成了，根据数值自动判断结局
+            if(currentEventIndex>=gameData.events.length){
+                if(gameData.student.gpa>=3.8&&gameData.student.competitions>=3) chosenPath='baoyan';
+                else if(gameData.student.skills>=50) chosenPath='jiuye';
+                else if(gameData.student.gpa>=3.0) chosenPath='kaoyan';
+                else chosenPath='kaogong';
+                showEnding();
+            }else{
+                renderEvent();
+            }
+        }
+
+        // 更新数值显示
+        function updateStats(){
+            gpaDisplay.textContent=gameData.student.gpa.toFixed(1);
+            skillsDisplay.textContent=gameData.student.skills;
+            competitionsDisplay.textContent=gameData.student.competitions;
+            happinessDisplay.textContent=gameData.student.happiness;
+        }
+
+        // 显示结局
+        function showEnding(){
+            const ending=gameData.endings[chosenPath];
+            
+            // 更新结局图标和标题
+            resultIcon.innerHTML=`<i class="fa ${ending.icon} text-white text-4xl"></i>`;
+            resultIcon.className=`w-24 h-24 mx-auto mb-5 bg-gradient-to-r ${ending.color} rounded-full flex items-center justify-center shadow-xl`;
+            resultTitle.textContent=ending.title;
+            resultSubtitle.textContent=ending.subtitle;
+            
+            // 更新校友头像（不同结局不同颜色）
+            alumniAvatar.className=`w-32 h-32 md:w-36 md:h-36 alumni-avatar ${ending.avatarBg}`;
+            
+            // 更新校友信息
+            alumniName.textContent=ending.alumni.name;
+            alumniTitle.textContent=ending.alumni.title;
+            alumniStory.textContent=ending.alumni.story;
+            
+            // 更新祝贺语
+            congratulations.textContent=ending.congratulations.replace('{name}', gameData.student.name);
+            encouragement.innerHTML=ending.encouragement.replace('{name}', gameData.student.name).replace(/\n\n/g, '<br><br>');
+            
+            // 显示结局页
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
